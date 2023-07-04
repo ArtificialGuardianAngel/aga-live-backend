@@ -29,6 +29,11 @@ test:
 deploy:
   stage: deploy
   script:
+    - echo MONGODB_URI=$MONGODB_URI > .env
+    - echo RMQ_HOST=$RMQ_HOST > .env
+    - echo MINING_COINS_PER_QUERY=$MINING_COINS_PER_QUERY > .env
+    - echo MINING_COINS_MAX_PER_DAY=$MINING_COINS_MAX_PER_DAY > .env
+    - echo JWT_SECRET_PASSWORD=$JWT_SECRET_PASSWORD > .env
     - cd $PROJECT_PATH
     - if [ -d $DEPLOY_PATH ]; then sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA; fi
     - sudo rsync -av --progress . $DEPLOY_PATH --exclude deploy
