@@ -33,7 +33,13 @@ export class AuthController {
 
   @Post("authorize")
   async handleSignUp(@User("_id") id: string, @Body() data: AuthorisationDto) {
-    return this.service.authorisation(id, data);
+    const { obj } = await this.service.authorisation(id, data);
+    return {
+      token: sign(obj.toObject(), environment.JWT_SECRET_PASSWORD, {
+        expiresIn: "30d",
+        algorithm: "HS256",
+      }),
+    };
   }
 
   @Post("verify")

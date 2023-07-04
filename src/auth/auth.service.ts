@@ -28,6 +28,7 @@ export class AuthService {
   }
   async authorisation(id: string, data: AuthorisationDto) {
     const instance = await this.userService.findOne(id);
+    let obj: any;
     let code: string;
     if (!instance) throw new NotFoundException("User not found");
     if (
@@ -43,16 +44,21 @@ export class AuthService {
         await instance.save();
         const savedData = await this.userService.findOne(instance._id);
         // send instance.code
+        obj = savedData;
         code = savedData.code;
       } else {
         await instance.deleteOne();
         // send emailedInstance.code
+        obj = emailedInstance;
         code = emailedInstance.code;
       }
       // send instance.code
-    } else code = instance.code;
-    console.log("code", code);
-    return code;
+    } else {
+      code = instance.code;
+      obj = instance;
+    }
+    console.log({ code });
+    return { obj };
   }
   async login(email: string, code: string, id: string) {
     const session = await this.connection.startSession();
