@@ -31,7 +31,7 @@ deploy:
   script:
     - cd $PROJECT_PATH
     - if [ -d $DEPLOY_PATH ]; then sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA; fi
-    - sudo cp -r . $DEPLOY_PATH
+    - sudo rsync -av --progress . $DEPLOY_PATH --exclude deploy
     - pm2 start ecosystem.config.js
     - pm2 save
   environment:
