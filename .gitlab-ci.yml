@@ -1,7 +1,7 @@
 variables:
-  PROJECT_PATH: "/home/gitlab-runner/aga.live_backend"
-  DEPLOY_PATH: "/home/gitlab-runner/aga.live_backend/deploy"
-  BACKUP_PATH: "/home/gitlab-runner/aga.live_backend/backups"
+  PROJECT_PATH: "/home/gitlab-runner/projects/aga.live_backend"
+  DEPLOY_PATH: "/home/gitlab-runner/deployments/aga.live_backend"
+  BACKUP_PATH: "/home/gitlab-runner/backups/aga.live_backend"
   PROD_URL: "http://your-production-url"
 
 stages:
