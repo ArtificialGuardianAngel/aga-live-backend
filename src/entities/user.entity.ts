@@ -8,7 +8,7 @@ export enum UserTypeEnum {
 }
 
 @Schema()
-export class UserEntity {
+export class User {
   @Prop({ default: crypto.randomUUID, unique: true })
   deviceId: string;
 
@@ -31,10 +31,10 @@ export class UserEntity {
   updatedAt: Date;
 }
 
-export type UserEntityDocumnet = HydratedDocument<UserEntity>;
-export const UserEntitySchema = SchemaFactory.createForClass(UserEntity);
+export type UserDocumnet = HydratedDocument<User>;
+export const UserSchema = SchemaFactory.createForClass(User);
 
-UserEntitySchema.post("save", (doc, next) => {
+UserSchema.post("save", (doc, next) => {
   // if (doc.password) ;
   if (!doc.createdAt) doc.createdAt = new Date();
   doc.updatedAt = new Date();

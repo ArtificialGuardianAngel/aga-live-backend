@@ -1,0 +1,54 @@
+variables:
+  PROJECT_PATH: "/home/gitlab-runner/aga.live_backend/my_project"
+  DEPLOY_PATH: "/home/gitlab-runner/aga.live_backend/deploy"
+  BACKUP_PATH: "/home/gitlab-runner/aga.live_backend/backups"
+  PROD_URL: "http://your-production-url"
+
+stages:
+  - install
+  - test
+  - deploy
+  - rollback
+
+install:
+  stage: install
+  script:
+    - cp -r ./* $PROJECT_PATH
+    - cd $PROJECT_PATH
+    - npm install
+  artifacts:
+    paths:
+      - node_modules/
+
+test:
+  stage: test
+  script:
+    - cd $PROJECT_PATH
+    - npm test
+
+deploy:
+  stage: deploy
+  script:
+    - cd $PROJECT_PATH
+    - if [ -d $DEPLOY_PATH ]; then sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA; fi
+    - sudo cp -r . $DEPLOY_PATH
+    - pm2 start ecosystem.config.js
+    - pm2 save
+  environment:
+    name: production
+  only:
+    - main
+
+rollback:
+  stage: rollback
+  script:
+    - cd $PROJECT_PATH
+    - LAST_DEPLOY=$(ls -td -- $BACKUP_PATH/* | head -n 1)
+    - sudo rm -rf $DEPLOY_PATH
+    - sudo mkdir $DEPLOY_PATH
+    - sudo mv $LAST_DEPLOY $DEPLOY_PATH
+    - pm2 start ecosystem.config.js
+    - pm2 save
+  when: manual
+  environment:
+    name: production

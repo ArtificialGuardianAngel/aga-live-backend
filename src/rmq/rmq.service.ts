@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { IRmqOptions, ISendData } from "./rmq.interfaces";
+import { IRmqOptions, ISendData, ReceiveData } from "./rmq.interfaces";
 import { connect, Connection, Channel, Replies, ConsumeMessage } from "amqplib";
 import { RMQ_OPTIONS } from "./rmq.constants";
 
@@ -21,35 +21,25 @@ export class RmqService {
     this.result = await this.channel.assertQueue("reply_prompt");
   }
 
-  public send(
-    uid: string,
-    data: ISendData,
-    cb?: (data: {
-      sid: string;
-      message: string;
-      history: Record<string, Array<string>>;
-    }) => void,
-  ) {
+  public close(tag: Replies.Consume["consumerTag"]) {
+    this.channel.cancel(tag);
+  }
+
+  public ack(data: ConsumeMessage) {
+    return this.channel.ack(data);
+  }
+
+  public async send(corrId: string, data: ISendData) {
     const sendData = Buffer.from(JSON.stringify(data));
 
     this.channel.sendToQueue("prompt", sendData, {
       replyTo: this.result.queue,
-      correlationId: uid,
-    });
-
-    this.subscribe((data) => {
-      try {
-        console.log("[", Buffer.from(data.content).toString(), "]");
-        const response = JSON.parse(Buffer.from(data.content).toString());
-        cb(response);
-      } finally {
-        this.channel.ack(data);
-      }
+      correlationId: corrId,
     });
   }
   public subscribe(callback: (data: ConsumeMessage) => void) {
     try {
-      this.channel.consume(this.result.queue, callback);
+      return this.channel.consume(this.result.queue, callback);
     } catch (e) {
       console.warn(e);
     }

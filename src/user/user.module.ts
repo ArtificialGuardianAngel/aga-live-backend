@@ -1,19 +1,26 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { UserEntity, UserEntitySchema } from "src/entities/user.entity";
+import { User, UserSchema } from "src/entities/user.entity";
 import { UserService } from "./user.service";
-import { UserController } from "./user.controller";
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
+    MongooseModule.forFeatureAsync([
       {
-        name: UserEntity.name,
-        schema: UserEntitySchema,
+        name: User.name,
+        useFactory: () => {
+          const mySchema = UserSchema;
+          mySchema.pre("save", function (next) {
+            // if (doc.password) ;
+            this.updatedAt = new Date();
+            next();
+          });
+          return mySchema;
+        },
       },
     ]),
   ],
   providers: [UserService],
-  controllers: [UserController],
+  exports: [UserService],
 })
 export class UserModule {}

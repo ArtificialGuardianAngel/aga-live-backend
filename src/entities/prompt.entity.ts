@@ -1,24 +1,34 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
-import { UserEntity } from "./user.entity";
+import { User } from "./user.entity";
 
+@Schema({ _id: false })
+class History {
+  @Prop({ default: [] })
+  internal: Array<string>[];
+  @Prop({ default: [] })
+  visible: Array<string>[];
+}
 @Schema()
-export class PromptEntity {
-  @Prop()
-  input: string;
-
-  @Prop()
-  output?: string;
-
-  @Prop({ default: 0 })
-  timestamp: number;
+export class Chat {
+  @Prop({ type: History, default: { internal: [], visible: [] } })
+  history: History;
 
   @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: "UserEntity" })
-  creator: UserEntity;
+  @Prop({ default: Date.now })
+  updatedAt: Date;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name })
+  creator: User;
 }
 
-export type PromptEntityDocumnet = HydratedDocument<PromptEntity>;
-export const PromptEntitySchema = SchemaFactory.createForClass(PromptEntity);
+export type ChatDocumnet = HydratedDocument<Chat>;
+export const ChatSchema = SchemaFactory.createForClass(Chat);
+
+ChatSchema.post<ChatDocumnet>("save", function (_, next) {
+  // if (doc.password) ;
+  this.updatedAt = new Date();
+  next();
+});

@@ -1,18 +1,21 @@
 import { Controller, Post, Get, Body, UseGuards } from "@nestjs/common";
-import { UserService } from "./user.service";
-import { UserEntityDocumnet, UserTypeEnum } from "src/entities/user.entity";
+import { AllowAny, User } from "./guards/auth.decorator";
+import { AuthService } from "./auth.service";
 import { sign } from "jsonwebtoken";
 import { environment } from "src/enviroment";
-import { AuthorisationDto, VerifyUserDto } from "./dto/user.dto";
 import { AuthGuard } from "./guards/auth.guard";
-import { AllowAny, User } from "./guards/auth.decorator";
+import { UserDocumnet, UserTypeEnum } from "src/entities/user.entity";
+import { UserService } from "src/user/user.service";
+import { AuthorisationDto, VerifyUserDto } from "./dto/auth.dto";
 
+@UseGuards(AuthGuard)
 @Controller()
-export class UserController {
-  constructor(private readonly service: UserService) {}
-
+export class AuthController {
+  constructor(
+    private readonly service: AuthService,
+    private readonly userService: UserService,
+  ) {}
   @AllowAny()
-  @UseGuards(AuthGuard)
   @Post("connect")
   async handleConnect(
     @Body("metadata") metadata: any,
@@ -28,18 +31,13 @@ export class UserController {
     };
   }
 
-  @UseGuards(AuthGuard)
   @Post("authorize")
   async handleSignUp(@User("_id") id: string, @Body() data: AuthorisationDto) {
     return this.service.authorisation(id, data);
   }
 
-  @UseGuards(AuthGuard)
   @Post("verify")
-  async handleSignIn(
-    @User() user: UserEntityDocumnet,
-    @Body() data: VerifyUserDto,
-  ) {
+  async handleSignIn(@User() user: UserDocumnet, @Body() data: VerifyUserDto) {
     return this.service.login(
       data.email,
       data.code,
@@ -47,12 +45,11 @@ export class UserController {
     );
   }
 
-  @UseGuards(AuthGuard)
   @Get("me")
   async handleMe(@User("_id") id?: string) {
     console.log({ id });
     if (!id) return null;
-    const instance = await this.service.findOne(id);
+    const instance = await this.userService.findOne(id);
     if (instance.type === UserTypeEnum.anonymous) return null;
     return instance;
   }

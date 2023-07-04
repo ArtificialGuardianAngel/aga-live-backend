@@ -2,12 +2,12 @@ import { IoAdapter } from "@nestjs/platform-socket.io";
 import { ServerOptions, Socket } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 import { createClient } from "redis";
-import { UserEntityDocumnet } from "src/entities/user.entity";
+import { UserDocumnet } from "src/entities/user.entity";
 import { environment } from "src/enviroment";
 import { verify } from "jsonwebtoken";
 
 export interface CustomSocket extends Socket {
-  user: UserEntityDocumnet;
+  user: UserDocumnet;
 }
 
 export class RedisIoAdapter extends IoAdapter {
@@ -34,7 +34,7 @@ export class RedisIoAdapter extends IoAdapter {
             if (err) {
               next(new Error("Authentication error"));
             } else {
-              socket.user = decoded as UserEntityDocumnet;
+              socket.user = decoded as UserDocumnet;
               next();
             }
           },

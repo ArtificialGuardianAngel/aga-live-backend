@@ -7,6 +7,8 @@ import { UserModule } from "./user/user.module";
 import { RmqModule } from "./rmq/rmq.module";
 import { extractConfigurationFromConfigService } from "./config/common";
 import { ChatModule } from "./chat/chat.module";
+import { WalletModule } from "./wallet/wallet.module";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -29,11 +31,21 @@ import { ChatModule } from "./chat/chat.module";
       }),
     }),
     UserModule,
+    WalletModule,
     ChatModule,
+    AuthModule,
     RouterModule.register([
       {
         path: "user",
-        module: UserModule,
+        module: AuthModule,
+      },
+      {
+        path: "chat",
+        module: ChatModule,
+      },
+      {
+        path: "wallet",
+        module: WalletModule,
       },
     ]),
   ],
