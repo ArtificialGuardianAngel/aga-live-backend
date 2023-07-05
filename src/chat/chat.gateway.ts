@@ -12,12 +12,7 @@ import * as crypto from "crypto";
 import { ID } from "src/types";
 import { ChatDocumnet } from "src/entities/prompt.entity";
 
-@WebSocketGateway(3001, {
-  cors: {
-    origin: "*",
-  },
-  transports: ["websocket"],
-})
+@WebSocketGateway(3001, { cors: "*" })
 export class ChatGateway {
   private chats: Record<string, { isConnected: boolean; doc: ChatDocumnet }> =
     {};
