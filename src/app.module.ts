@@ -9,6 +9,8 @@ import { extractConfigurationFromConfigService } from "./config/common";
 import { ChatModule } from "./chat/chat.module";
 import { WalletModule } from "./wallet/wallet.module";
 import { AuthModule } from "./auth/auth.module";
+import { MailModule } from "./mail/mail.module";
+import { FilesModule } from "./files/files.module";
 
 @Module({
   imports: [
@@ -30,11 +32,21 @@ import { AuthModule } from "./auth/auth.module";
         validate: ["url"],
       }),
     }),
+    MailModule,
+    FilesModule,
     UserModule,
     WalletModule,
     ChatModule,
     AuthModule,
     RouterModule.register([
+      {
+        path: "files",
+        module: FilesModule,
+      },
+      {
+        path: "mail",
+        module: MailModule,
+      },
       {
         path: "user",
         module: AuthModule,
