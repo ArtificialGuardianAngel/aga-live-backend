@@ -32,6 +32,7 @@ export class RedisIoAdapter extends IoAdapter {
           environment.JWT_SECRET_PASSWORD,
           (err, decoded) => {
             if (err) {
+              console.log(err);
               next(new Error("Authentication error"));
             } else {
               socket.user = decoded as UserDocumnet;
