@@ -18,6 +18,9 @@ export class User {
   @Prop({ required: false })
   email?: string;
 
+  @Prop({ required: false })
+  emailForVerify?: string;
+
   @Prop({ default: crypto.randomUUID, required: false })
   code?: string;
 

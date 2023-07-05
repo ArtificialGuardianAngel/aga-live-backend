@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { AuthorisationDto } from "./dto/auth.dto";
@@ -9,12 +10,15 @@ import { WalletService } from "src/wallet/wallet.service";
 import { Connection } from "mongoose";
 import { InjectConnection } from "@nestjs/mongoose";
 import { UserTypeEnum } from "src/entities/user.entity";
+import { MailService } from "src/mail/mail.service";
+import { EmailTypeEnum } from "src/mail/mail.interfaces";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly walletService: WalletService,
+    private readonly mailService: MailService,
     @InjectConnection() private readonly connection: Connection,
   ) {}
 
@@ -40,7 +44,7 @@ export class AuthService {
       const emailedInstance = await this.userService.findOneByEmail(data.email);
       if (!emailedInstance) {
         // user is not registered
-        instance.email = data.email;
+        instance.emailForVerify = data.email;
         await instance.save();
         const savedData = await this.userService.findOne(instance._id);
         // send instance.code
@@ -57,6 +61,19 @@ export class AuthService {
       code = instance.code;
       obj = instance;
     }
+    try {
+      const template = await this.mailService.useFormTemplate(
+        EmailTypeEnum.onetime,
+        data.email,
+        { code },
+      );
+      await this.mailService.send(template);
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        "Cant send an email with onetime password",
+      );
+    }
     console.log({ code });
     return { obj };
   }
@@ -66,9 +83,10 @@ export class AuthService {
       await session.startTransaction();
       const instance = await this.userService.findOne(id, session);
       if (!instance) throw new NotFoundException();
-      if (instance.code !== code || instance.email !== email)
+      if (instance.code !== code || instance.emailForVerify !== email)
         throw new UnauthorizedException("Provided credits is not valid");
       instance.type = UserTypeEnum.authed;
+      instance.email = email;
 
       await this.walletService.create(instance._id, session);
       const data = await instance.save({ session });
