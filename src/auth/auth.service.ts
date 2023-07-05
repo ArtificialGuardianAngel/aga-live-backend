@@ -86,7 +86,8 @@ export class AuthService {
       if (instance.code !== code || instance.emailForVerify !== email)
         throw new UnauthorizedException("Provided credits is not valid");
       instance.type = UserTypeEnum.authed;
-      instance.email = email;
+      if (!instance.email) instance.email = email;
+      instance.emailForVerify = null;
 
       await this.walletService.create(instance._id, session);
       const data = await instance.save({ session });
