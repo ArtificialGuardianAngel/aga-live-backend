@@ -12,7 +12,7 @@ import * as crypto from "crypto";
 import { ID } from "src/types";
 import { ChatDocumnet } from "src/entities/prompt.entity";
 
-@WebSocketGateway({
+@WebSocketGateway(3001, {
   cors: {
     origin: "*",
   },
