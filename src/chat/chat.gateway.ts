@@ -14,9 +14,9 @@ import { ChatDocumnet } from "src/entities/prompt.entity";
 
 @WebSocketGateway({
   cors: {
-    origin: "https://aga.live",
-    methods: ["GET", "POST"],
+    origin: "*",
   },
+  transports: ["websocket"],
 })
 export class ChatGateway {
   private chats: Record<string, { isConnected: boolean; doc: ChatDocumnet }> =
