@@ -62,6 +62,7 @@ export class ChatGateway {
 
   @SubscribeMessage("prompt")
   async handlePrompt(client: CustomSocket, data: ChatEventDto) {
+    if (!data.message || !data.message.trim()) return;
     const chat = await this.service.findByIdOrCreate(
       data.chatId,
       client.user._id,

@@ -1,7 +1,7 @@
 import { EmailTypeEnum } from "./mail.interfaces";
 
 export const MAIL_SUBJECTS: Record<EmailTypeEnum, string> = {
-  "onetime-password": "Confirm your email",
-  [EmailTypeEnum.funds]: "New sponsor",
-  [EmailTypeEnum.about]: "New volounteer",
+  [EmailTypeEnum.onetime]: "A.G.A EMAIL VERIFICATION CODE", //external
+  [EmailTypeEnum.funds]: "New sponsor", //
+  [EmailTypeEnum.about]: "New volounteer", //
 };
