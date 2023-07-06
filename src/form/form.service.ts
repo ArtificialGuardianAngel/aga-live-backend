@@ -16,7 +16,11 @@ export class FormService {
     slack.chat.postMessage({
       token: this.configService.getOrThrow("SLACK_API_KEY"),
       channel: SLACK_CHANNELS[type],
-      text: `${type.toUpperCase()}\n${JSON.stringify(data, null, 2)}`,
+      text: `${type.toUpperCase().replace("-", " ")}\n\n${JSON.stringify(
+        data,
+        null,
+        2,
+      )}`,
     });
   }
 

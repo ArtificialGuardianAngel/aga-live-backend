@@ -4,5 +4,5 @@ export enum FormTypeEnum {
 }
 export const SLACK_CHANNELS: Record<FormTypeEnum, string> = {
   [FormTypeEnum.about]: "web-notifications",
-  [FormTypeEnum.funds]: "aga-fund-form",
+  [FormTypeEnum.funds]: "web-notifications",
 };
