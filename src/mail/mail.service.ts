@@ -8,6 +8,7 @@ import Mail from "nodemailer/lib/mailer";
 import MailComposer from "nodemailer/lib/mail-composer";
 import { compile } from "handlebars";
 import { EmailTypeEnum } from "./mail.interfaces";
+import { MAIL_SUBJECTS } from "./mail.constants";
 
 const SCOPES = ["https://www.googleapis.com/auth/gmail.send"];
 const TOKEN_PATH = path.resolve("config/google_token.json");
@@ -80,7 +81,7 @@ export class MailService {
     return {
       to,
       replyTo: "aga@nuah.org",
-      subject: "Contact From Apply",
+      subject: MAIL_SUBJECTS[type],
       html: compile(template.toString())(data),
       textEncoding: "base64",
     };
