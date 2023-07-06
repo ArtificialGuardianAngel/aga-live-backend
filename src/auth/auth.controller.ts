@@ -56,7 +56,7 @@ export class AuthController {
     console.log({ id });
     if (!id) return null;
     const instance = await this.userService.findOne(id);
-    if (instance.type === UserTypeEnum.anonymous && !instance.emailForVerify)
+    if (instance.type === UserTypeEnum.anonymous || instance.emailForVerify)
       return null;
     return instance;
   }
