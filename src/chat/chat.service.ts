@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
-import { User } from "../entities/user.entity";
 import { ClientSession, Connection, Model } from "mongoose";
 import { Chat } from "../entities/prompt.entity";
 import { WalletService } from "src/wallet/wallet.service";
-import { ID } from "src/types";
+import { GroupFilter, ID } from "src/types";
 import { ConfigService } from "@nestjs/config";
+import { ActivityFilterBy } from "src/admin/dto/common";
+import { ObjectId } from "bson";
+import { Filter } from "src/admin/dto/user.dto";
 
 @Injectable()
 export class ChatService {
@@ -48,14 +50,12 @@ export class ChatService {
       .find({ creator: userId })
       .sort({ updatedAt: -1 })
       .limit(1);
-    console.log(data);
     return data[0] ? data[0] : this.create(userId);
   }
 
   async findLastChats(userId: ID) {
     const data = await this.model
       .find({ creator: userId })
-      .select(["updatedAt", "createdAt"])
       .sort({ updatedAt: -1 });
     return data;
   }
@@ -81,5 +81,75 @@ export class ChatService {
     } finally {
       await session.endSession();
     }
+  }
+
+  async getAll(filter: Filter) {
+    const list = await this.model
+      .find(filter.find, null)
+      .sort(filter.sort)
+      .skip(filter.skip)
+      .limit(filter.take);
+    const total = await this.model.count();
+
+    return { list, total };
+  }
+
+  async currentUserActivityStats(id: ID, filterBy: ActivityFilterBy) {
+    const group: Partial<GroupFilter> = {};
+    if (filterBy.options.hour) group["hour"] = { $hour: "$updatedAt" };
+    if (filterBy.options.day) group["day"] = { $dayOfMonth: "$updatedAt" };
+    if (filterBy.options.month) group["month"] = { $month: "$updatedAt" };
+    if (filterBy.options.year) group["year"] = { $year: "$updatedAt" };
+
+    const result = await this.model.aggregate([
+      {
+        $match: { creator: new ObjectId(id) },
+      },
+      {
+        $group: { _id: group, count: { $sum: 1 } },
+      },
+      {
+        $sort: {
+          "_id.year": -1,
+          "_id.month": -1,
+          "_id.day": -1,
+        },
+      },
+    ]);
+
+    const min = filterBy.range[0];
+    const max = filterBy.range[1];
+    const diffInTime = new Date(max).getTime() - new Date(min).getTime();
+    const diffInDays = diffInTime / (1e5 * 36 * 24) + 1;
+
+    const arr = Array.from({ length: diffInDays }, (_, i) => {
+      const date = new Date(min);
+      date.setDate(date.getDate() + i);
+      return {
+        _id: {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          day: date.getDate(),
+        },
+        count: 0,
+      };
+    });
+    return arr.reduce((_arr, e, i) => {
+      const prevEl = i === 0 ? e : _arr[i - 1];
+      const inStats = result.find(
+        (el) =>
+          el._id.year === e._id.year &&
+          el._id.month === e._id.month &&
+          el._id.day === e._id.day,
+      );
+      return _arr.concat({
+        _id: {
+          year: e._id.year,
+          month: e._id.month,
+          day: e._id.day,
+        },
+        count: prevEl.count + (inStats?.count || 0),
+      });
+    }, []);
   }
 }

@@ -12,6 +12,7 @@ import { AuthModule } from "./auth/auth.module";
 import { MailModule } from "./mail/mail.module";
 import { FilesModule } from "./files/files.module";
 import { FormModule } from "./form/form.module";
+import { AdminModule } from "./admin/admin.module";
 
 @Module({
   imports: [
@@ -40,7 +41,12 @@ import { FormModule } from "./form/form.module";
     WalletModule,
     ChatModule,
     AuthModule,
+    AdminModule,
     RouterModule.register([
+      {
+        path: "admin",
+        module: AdminModule,
+      },
       {
         path: "forms",
         module: FormModule,
