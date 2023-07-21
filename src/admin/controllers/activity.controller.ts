@@ -1,7 +1,9 @@
-import { Body, Controller, Param, Post } from "@nestjs/common";
+import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
+import { AdminAuthGuard } from "src/auth/guards/admin-auth.guard";
 import { ChatService } from "src/chat/chat.service";
 import { UserService } from "src/user/user.service";
 
+@UseGuards(AdminAuthGuard)
 @Controller("activity")
 export class ActivityController {
   constructor(

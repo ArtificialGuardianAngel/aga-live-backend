@@ -1,8 +1,9 @@
 import { Module } from "@nestjs/common";
 import { RouterModule } from "@nestjs/core";
-import { AppController } from "./app.controller";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
+import { ScheduleModule } from "@nestjs/schedule";
+import { AppController } from "./app.controller";
 import { UserModule } from "./user/user.module";
 import { RmqModule } from "./rmq/rmq.module";
 import { extractConfigurationFromConfigService } from "./config/common";
@@ -34,6 +35,7 @@ import { AdminModule } from "./admin/admin.module";
         validate: ["url"],
       }),
     }),
+    ScheduleModule.forRoot(),
     MailModule,
     FilesModule,
     FormModule,

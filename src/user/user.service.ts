@@ -45,7 +45,6 @@ export class UserService {
     const total = await this.model.count();
     return { list, total };
   }
-
   async activityStats(filterBy: UserActivityFilterBy) {
     const group: Partial<GroupFilter> = {};
     if (filterBy.options.hour) group["hour"] = { $hour: "$updatedAt" };
@@ -174,5 +173,24 @@ export class UserService {
         count: prevEl.count + (inStats?.count || 0),
       });
     }, []);
+  }
+
+  async getActiveUsers() {
+    const today = new Date();
+    today.setDate(today.getDate() - 3);
+    const users = await this.model.find({ updatedAt: { $gte: today } });
+    return users.length;
+  }
+
+  async getAvgUsersPerDay() {
+    const users = await this.model.count();
+    const oldestUser = await this.model.find().sort({ createdAt: 1 }).limit(1);
+    const oldestDate = new Date(oldestUser[0].createdAt);
+
+    const today = new Date();
+    const diffInTime = Math.abs(today.getTime() - oldestDate.getTime());
+    const diffInDays = Math.ceil(diffInTime / (1000 * 60 * 60 * 24));
+
+    return users / diffInDays;
   }
 }

@@ -152,4 +152,20 @@ export class ChatService {
       });
     }, []);
   }
+
+  async getTotalChats() {
+    return this.model.count();
+  }
+  async getAvgChatsPerDay() {
+    const total = await this.getTotalChats();
+
+    const oldestChat = await this.model.find().sort({ createdAt: 1 }).limit(1);
+    const oldestDate = new Date(oldestChat[0].createdAt);
+
+    const today = new Date();
+    const diffInTime = Math.abs(today.getTime() - oldestDate.getTime());
+    const diffInDays = Math.ceil(diffInTime / (1000 * 60 * 60 * 24));
+
+    return total / diffInDays;
+  }
 }
