@@ -6,7 +6,10 @@ import cookieParser from "cookie-parser";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: ["https://aga.live", "https://admin.aga.live"],
+      origin:
+        process.env.NODE_ENV === "development"
+          ? ["http://localhost:5173", "http://127.0.0.1:5173"]
+          : ["https://aga.live", "https://admin.aga.live"],
       credentials: true,
     },
   });

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, ConsoleLogger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import slack from "slack";
 import crypto from "crypto";
@@ -6,7 +6,9 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AdminService {
+  logger: ConsoleLogger;
   constructor(private readonly configService: ConfigService) {
+    this.logger = new ConsoleLogger();
     this.handleUpdatePassword();
   }
   private password: string;
@@ -16,12 +18,15 @@ export class AdminService {
       .createHash("md5")
       .update(crypto.randomUUID())
       .digest("hex");
-    slack.chat.postMessage({
-      token: this.configService.getOrThrow("SLACK_API_KEY"),
-      channel: "aga-admin-password",
-      text: `Password will be updated in next hour\n\`${this.password}\``,
-    });
-    console.log("Password set", this.password);
+
+    const env = this.configService.get("NODE_ENV");
+    if (env !== "development")
+      slack.chat.postMessage({
+        token: this.configService.getOrThrow("SLACK_API_KEY"),
+        channel: "aga-admin-password",
+        text: `Password will be updated in next hour\n\`${this.password}\``,
+      });
+    this.logger.log(`Password set ${this.password}`, "AdminService");
   }
 
   confirmPassword(password: string) {
