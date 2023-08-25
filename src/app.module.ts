@@ -14,6 +14,7 @@ import { MailModule } from "./mail/mail.module";
 import { FilesModule } from "./files/files.module";
 import { FormModule } from "./form/form.module";
 import { AdminModule } from "./admin/admin.module";
+import { HappinessModule } from "./happiness/happiness.module";
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AdminModule } from "./admin/admin.module";
     ChatModule,
     AuthModule,
     AdminModule,
+    HappinessModule,
     RouterModule.register([
       {
         path: "admin",
@@ -72,6 +74,10 @@ import { AdminModule } from "./admin/admin.module";
       {
         path: "wallet",
         module: WalletModule,
+      },
+      {
+        path: "happiness",
+        module: HappinessModule,
       },
     ]),
   ],
