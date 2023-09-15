@@ -7,3 +7,7 @@ export class ChatEventDto {
   message: string;
   chatId: string;
 }
+
+export class ChatSyncMethodDto {
+  chatId: string;
+}

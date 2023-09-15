@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 import { ChatService } from "./chat.service";
 import { CustomSocket } from "src/adapters/redis.io.adapter";
 import { RmqService } from "src/rmq/rmq.service";
-import { ChatEventDto } from "./dto/chat.dto";
+import { ChatEventDto, ChatSyncMethodDto } from "./dto/chat.dto";
 import * as crypto from "crypto";
 import { ID } from "src/types";
 import { ChatDocumnet } from "src/entities/prompt.entity";
@@ -60,6 +60,16 @@ export class ChatGateway {
       }
     });
   }
+
+  // @SubscribeMessage("sync")
+  // handleSync(client: CustomSocket, data: ChatSyncMethodDto) {
+  //   const chat = await this.service.findByIdOrCreate(
+  //     data.chatId,
+  //     client.user._id,
+  //   );
+
+  //   return chat.history.internal.map()
+  // }
 
   @SubscribeMessage("prompt")
   async handlePrompt(client: CustomSocket, data: ChatEventDto) {
