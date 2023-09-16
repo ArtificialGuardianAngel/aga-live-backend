@@ -9,16 +9,19 @@ export class ContractCron {
 
   @Cron("30 * * * * *")
   async handleCron() {
+    console.log("Cron");
     try {
       const now = moment();
       const tenMinsFromNow = now.subtract(10, "minutes");
-
-      const contractsToBeRevoked = this.service.findExpiredContracts(
+      console.log(tenMinsFromNow.toDate().toLocaleString());
+      const contractsToBeRevoked = await this.service.findExpiredContracts(
         tenMinsFromNow.toDate(),
       );
+      // console.log(contractsToBeRevoked);
 
       for await (const contract of contractsToBeRevoked) {
-        await this.service.revoke(contract.documentId);
+        console.log(contract);
+        await this.service.revoke(contract);
       }
     } catch (error) {
       console.log(error);

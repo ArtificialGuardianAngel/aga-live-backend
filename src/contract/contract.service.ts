@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { ContractModel } from "./entities/contract.entity";
+import { ContractDocument, ContractModel } from "./entities/contract.entity";
 import { Model } from "mongoose";
 import { ID } from "src/types";
 import { ConfigService } from "@nestjs/config";
@@ -20,7 +20,7 @@ export class ContractService {
   }
 
   findById(id: ID) {
-    return this.model.findOne({ id, revokedAt: { $exists: false } });
+    return this.model.findOne({ id });
   }
 
   findByDocumentId(docId: string) {
@@ -28,21 +28,33 @@ export class ContractService {
   }
 
   findExpiredContracts(date: Date) {
-    return this.model.find({ createdAt: { $lte: date } });
+    return this.model.find({
+      createdAt: { $lte: date },
+      revokedAt: null,
+    });
   }
 
-  async revoke(id: ID) {
+  async revoke(contract: ContractDocument) {
     try {
-      const contract = await this.findById(id);
       await axios.post(
         this.configService.get("BOLDSIGN_API_URL"),
         {
-          message: "",
+          message: "Timeout",
         },
-        { params: { documentId: contract.documentId } },
+        {
+          params: { documentId: contract.documentId },
+          headers: {
+            Accept: "application/json",
+            "X-API-KEY": this.configService.get("BOLDSIGN_API_KEY"),
+            "Content-Type":
+              "application/json;odata=minimal;odata.streaming=true",
+          },
+        },
       );
       contract.revokedAt = new Date();
       return await contract.save();
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

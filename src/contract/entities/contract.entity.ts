@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
 
 @Schema()
 export class ContractModel {
@@ -11,5 +12,7 @@ export class ContractModel {
   @Prop()
   revokedAt: Date;
 }
+
+export type ContractDocument = HydratedDocument<ContractModel>;
 
 export const contractModelSchema = SchemaFactory.createForClass(ContractModel);

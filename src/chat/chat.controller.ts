@@ -36,6 +36,11 @@ export class ChatController {
   }
 
   @Get(":id")
+  handleSyncOne(@User("_id") userId: string, @Param("id") id: string) {
+    return this.service.findByIdAndCreator(id, userId);
+  }
+
+  @Get(":id")
   handleGetOne(@User("_id") userId: string, @Param("id") id: string) {
     return this.service.findByIdAndCreator(id, userId);
   }

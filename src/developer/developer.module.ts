@@ -4,6 +4,8 @@ import {
   DeveloperModel,
   developerModelSchema,
 } from "./entities/developer.entity";
+import { DeveloperService } from "./developer.service";
+import { DeveloperController } from "./developer.controller";
 
 @Module({
   imports: [
@@ -11,5 +13,7 @@ import {
       { name: DeveloperModel.name, schema: developerModelSchema },
     ]),
   ],
+  providers: [DeveloperService],
+  controllers: [DeveloperController],
 })
 export class DeveloperModule {}
