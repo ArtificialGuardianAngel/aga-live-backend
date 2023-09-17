@@ -82,7 +82,7 @@ export class ChatGateway {
     const messageDateCreation = new Date();
     const messageHash = crypto
       .createHash("md5")
-      .update(data.message + messageDateCreation.toISOString())
+      .update(data.message)
       .digest("hex");
 
     client.emit("prompt_added", {

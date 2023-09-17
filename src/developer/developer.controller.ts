@@ -10,7 +10,7 @@ import {
 import { DeveloperService } from "./developer.service";
 import { ID } from "src/types";
 
-@Controller("developer")
+@Controller()
 export class DeveloperController {
   constructor(private readonly service: DeveloperService) {}
 
