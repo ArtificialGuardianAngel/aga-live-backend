@@ -1,6 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { RedisIoAdapter } from "./adapters/redis.io.adapter";
+import { RedisIoAdapter } from "src/core/adapters/redis.io.adapter";
 import cookieParser from "cookie-parser";
 
 async function bootstrap() {

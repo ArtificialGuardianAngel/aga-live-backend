@@ -39,6 +39,9 @@ deploy:
     - echo SLACK_API_KEY=$SLACK_API_KEY >> .env
     - echo BOLDSIGN_API_URL=$BOLDSIGN_API_URL >> .env
     - echo BOLDSIGN_API_KEY=$BOLDSIGN_API_KEY >> .env
+    - echo BOLDSIGN_TEMPLATE_ID=$BOLDSIGN_TEMPLATE_ID >> .env
+    - echo SMARTPAY_API_KEY=$SMARTPAY_API_KEY >> .env
+    - echo SMARTPAY_SECRET_KEY=$SMARTPAY_SECRET_KEY >> .env
     - cat .env
     - if [ -d $DEPLOY_PATH ]; then sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA; fi
     - sudo rsync -av --progress . $DEPLOY_PATH --exclude deploy

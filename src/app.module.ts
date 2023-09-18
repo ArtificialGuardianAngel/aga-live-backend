@@ -4,19 +4,19 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ScheduleModule } from "@nestjs/schedule";
 import { AppController } from "./app.controller";
-import { UserModule } from "./user/user.module";
-import { RmqModule } from "./rmq/rmq.module";
-import { extractConfigurationFromConfigService } from "./config/common";
-import { ChatModule } from "./chat/chat.module";
-import { WalletModule } from "./wallet/wallet.module";
-import { AuthModule } from "./auth/auth.module";
-import { MailModule } from "./mail/mail.module";
-import { FilesModule } from "./files/files.module";
-import { FormModule } from "./form/form.module";
-import { AdminModule } from "./admin/admin.module";
-import { HappinessModule } from "./happiness/happiness.module";
-import { ContractModule } from "./contract/contract.module";
-import { DeveloperModule } from "./developer/developer.module";
+import { UserModule } from "./modules/user/user.module";
+import { RmqModule } from "./core/rmq/rmq.module";
+import { extractConfigurationFromConfigService } from "./core/config/common";
+import { ChatModule } from "./modules/chat/chat.module";
+import { WalletModule } from "./modules/wallet/wallet.module";
+import { AuthModule } from "./core/auth/auth.module";
+import { MailModule } from "./modules/mail/mail.module";
+import { FilesModule } from "./modules/files/files.module";
+import { FormModule } from "./modules/form/form.module";
+import { AdminModule } from "./modules/admin/admin.module";
+import { HappinessModule } from "./modules/happiness/happiness.module";
+import { ContractModule } from "./modules/contract/contract.module";
+import { DeveloperModule } from "./modules/developer/developer.module";
 
 @Module({
   imports: [
