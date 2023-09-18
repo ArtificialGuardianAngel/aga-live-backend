@@ -14,6 +14,7 @@ import { DeveloperController } from "./developer.controller";
     ]),
   ],
   providers: [DeveloperService],
+  exports: [DeveloperService],
   controllers: [DeveloperController],
 })
 export class DeveloperModule {}

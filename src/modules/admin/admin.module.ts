@@ -8,15 +8,18 @@ import { AdminChatController } from "./controllers/admin-chat.controller";
 import { StatsController } from "./controllers/stats.controller";
 import { ConfigModule } from "@nestjs/config";
 import { AdminAuthController } from "./controllers/admin-auth.controller";
+import { DeveloperModule } from "../developer/developer.module";
+import { AdminDeveloperController } from "./controllers/admin-developer.controller";
 
 @Module({
-  imports: [UserModule, ChatModule, ConfigModule],
+  imports: [UserModule, ChatModule, ConfigModule, DeveloperModule],
   controllers: [
     AdminUserController,
     ActivityController,
     AdminChatController,
     StatsController,
     AdminAuthController,
+    AdminDeveloperController,
   ],
   providers: [AdminService],
 })

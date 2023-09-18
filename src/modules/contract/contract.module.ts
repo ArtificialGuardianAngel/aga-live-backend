@@ -17,7 +17,10 @@ import { SmartpayModule } from "../api/smartpay/smartpay.module";
     BoldsignModule,
     SmartpayModule,
   ],
-  providers: [ContractService, ContractCron],
+  providers: [
+    ContractService,
+    // ContractCron
+  ],
   controllers: [ContractController],
 })
 export class ContractModule {}

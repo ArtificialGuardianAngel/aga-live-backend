@@ -8,7 +8,12 @@ async function bootstrap() {
     cors: {
       origin:
         process.env.NODE_ENV === "development"
-          ? ["http://localhost:8888", "http://127.0.0.1:8888"]
+          ? [
+              "http://localhost:8888",
+              "http://127.0.0.1:8888",
+              "http://127.0.0.1:5173",
+              "http://localhost/5173",
+            ]
           : ["https://aga.live", "https://admin.aga.live"],
       credentials: true,
     },

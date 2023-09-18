@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { DeveloperModel } from "./entities/developer.entity";
 import { Model } from "mongoose";
 import { ID } from "src/types";
+import { Filter } from "../admin/dto/user.dto";
 
 @Injectable()
 export class DeveloperService {
@@ -11,8 +12,12 @@ export class DeveloperService {
     private readonly model: Model<DeveloperModel>,
   ) {}
 
-  find() {
-    return this.model.find();
+  find(filter: Filter) {
+    return this.model
+      .find(filter.find)
+      .sort(filter.sort)
+      .skip(filter.skip)
+      .limit(filter.take);
   }
 
   async findById(id: ID) {
