@@ -6,6 +6,7 @@ import { ContractCron } from "./contract.cron";
 import { ContractController } from "./contract.controller";
 import { ConfigModule } from "@nestjs/config";
 import { BoldsignModule } from "../api/boldsign/boldsign.module";
+import { SmartpayModule } from "../api/smartpay/smartpay.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { BoldsignModule } from "../api/boldsign/boldsign.module";
       { name: ContractModel.name, schema: contractModelSchema },
     ]),
     BoldsignModule,
+    SmartpayModule,
   ],
   providers: [ContractService, ContractCron],
   controllers: [ContractController],

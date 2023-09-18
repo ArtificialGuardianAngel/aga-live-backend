@@ -1,8 +1,15 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 export enum Belt {
-  white,
-  yellow,
+  white = "white",
+  yellow = "yellow",
+  orange = "orange",
+  green = "green",
+  blue = "blue",
+  purple = "purple",
+  red = "red",
+  brown = "brown",
+  black = "black",
 }
 
 @Schema()
