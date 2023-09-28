@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post } from "@nestjs/common";
 import { ContractService } from "./contract.service";
 import { SendDocumentToDto } from "../api/boldsign/dto/send.doc.dto";
 @Controller()
@@ -13,5 +13,12 @@ export class ContractController {
   @Post("create")
   handleCreate(@Body() data: SendDocumentToDto) {
     return this.service.create(data);
+  }
+
+  @Post("boldsign")
+  @HttpCode(200)
+  handleBoldsignWebhook(@Body() data: any) {
+    console.log(data);
+    return "OK";
   }
 }
