@@ -19,7 +19,7 @@ import { SmartpayModule } from "../api/smartpay/smartpay.module";
   ],
   providers: [
     ContractService,
-    // ContractCron
+    ContractCron
   ],
   controllers: [ContractController],
 })

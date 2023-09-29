@@ -1,16 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { ContractService } from "./contract.service";
 import { Cron } from "@nestjs/schedule";
-import moment from "moment";
-import { BoldsignService } from "../api/boldsign/boldsign.service";
-import { AxiosError } from "axios";
 
 @Injectable()
 export class ContractCron {
-  constructor(
-    private readonly service: ContractService,
-    private readonly boldsignService: BoldsignService,
-  ) {}
+  constructor(private readonly service: ContractService) {}
 
   @Cron("0/30 * * * * *")
   async handleCron() {
@@ -18,15 +12,14 @@ export class ContractCron {
     this.exec();
   }
 
-  async exec(func = this.boldsignService.getDocuments) {
+  async exec() {
     try {
-      const response = await func();
-      console.log("Currently syncing ", response.data.result.length);
-      if (response.data.result.length === 0) return;
-      await this.service.sync(response.data.result);
-
-      // if (response.data.result.length < response.data.pageDetails.pageSize) return;
-      return this.exec(response.next);
+      const contractsToBeRevoked =
+        await this.service.findWithTenMinutesExpiration();
+      // const response = await func();
+      for await (const contract of contractsToBeRevoked) {
+        await this.service.revoke(contract);
+      }
     } catch (error) {
       console.log(error);
       // if (error instanceof AxiosError)

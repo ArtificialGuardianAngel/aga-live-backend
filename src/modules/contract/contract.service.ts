@@ -61,6 +61,13 @@ export class ContractService {
     }
   }
 
+  async findOrCreate(id: string) {
+    const data = await this.model.findOne({ documentId: id });
+    if (!data)
+      return new this.model({ documentId: id, createdAt: new Date() }).save();
+    return data;
+  }
+
   async sync(data: BoldsingDocumentListResponseResultItem[]) {
     const ids = data.map((item) => item.documentId);
 
@@ -98,5 +105,14 @@ export class ContractService {
       }
       await savedDocument.save();
     }
+  }
+
+  findWithTenMinutesExpiration() {
+    const tenMinsFromNow = new Date(Date.now() - 10 * 60 * 1000);
+    return this.model.find({
+      createdAt: { $lte: tenMinsFromNow },
+      completedAt: null,
+      revokedAt: null,
+    });
   }
 }
