@@ -8,9 +8,7 @@ import { environment } from "src/core/enviroment";
 export class AuthGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const allowAny = this.reflector.get<string[]>(
       "allow-any",
@@ -19,9 +17,11 @@ export class AuthGuard implements CanActivate {
 
     const authHeader: string = request.headers["authorization"];
     if (authHeader) {
-      const token = authHeader.split(" ")[1];
-      const userObject = verify(token, environment.JWT_SECRET_PASSWORD);
-      request.user = userObject;
+      try {
+        const token = authHeader.split(" ")[1];
+        const userObject = verify(token, environment.JWT_SECRET_PASSWORD);
+        request.user = userObject;
+      } catch {}
     } else if (!allowAny) return false;
     else {
       request.user = null;
