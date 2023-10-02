@@ -37,7 +37,7 @@ export class ContractService {
   }
 
   findById(id: ID) {
-    return this.model.findOne({ id });
+    return this.model.findOne({ _id: id });
   }
 
   findByDocumentId(docId: string) {
