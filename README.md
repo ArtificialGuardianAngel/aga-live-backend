@@ -1,4 +1,4 @@
-# A.G.A. Chat Backend
+# AGA Chat Backend
 
 
 .env

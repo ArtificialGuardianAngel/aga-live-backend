@@ -13,7 +13,7 @@ export class BoldsignWebhookDTO {
     object: "document";
     documentId: string;
     status: BoldsignDocumentStatus;
-    senderDetail: { name: "A.G.A. NUAH"; emailAddress: "alex@nuah.org" };
+    senderDetail: { name: "AGA NUAH"; emailAddress: "alex@nuah.org" };
     signerDetails: any;
     ccDetails: any;
     onBehalfOf: null;
@@ -32,7 +32,7 @@ export class BoldsignWebhookDTO {
     messageTitle: "Give and Earn Program Confirmation";
     documentDescription: "Please fill in all required fields.";
     status: BoldsignDocumentStatus;
-    senderDetail: { name: "A.G.A. NUAH"; emailAddress: "alex@nuah.org" };
+    senderDetail: { name: "AGA NUAH"; emailAddress: "alex@nuah.org" };
     signerDetails: any;
     ccDetails: any;
     onBehalfOf: null;
