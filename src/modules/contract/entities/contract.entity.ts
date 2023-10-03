@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 
 @Schema()
 export class ContractModel {
@@ -17,6 +17,9 @@ export class ContractModel {
 
   @Prop()
   amount: number;
+
+  @Prop({ type: MongooseSchema.Types.Mixed })
+  details: Record<string, any>;
 }
 
 export type ContractDocument = HydratedDocument<ContractModel>;

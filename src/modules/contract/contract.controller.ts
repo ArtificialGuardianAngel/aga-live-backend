@@ -28,6 +28,11 @@ export class ContractController {
       if (data.event.eventType === "Completed") {
         contractInstnace.completedAt = new Date();
         await contractInstnace.save();
+        if (contractInstnace.details?.email && contractInstnace.details?.amount)
+          await this.service.sendInvoice(
+            contractInstnace.details.email,
+            contractInstnace.details.amount,
+          );
         return "OK";
       }
       return "OK";

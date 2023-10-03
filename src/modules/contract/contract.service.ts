@@ -33,6 +33,7 @@ export class ContractService {
     return this._create({
       documentId: boldsignResponse.documentId,
       amount: parseInt(data.amount),
+      details: data,
     });
   }
 
@@ -68,43 +69,8 @@ export class ContractService {
     return data;
   }
 
-  async sync(data: BoldsingDocumentListResponseResultItem[]) {
-    const ids = data.map((item) => item.documentId);
-
-    const documents = await this.model.find({ documentId: { $in: ids } });
-
-    const now = moment();
-    const tenMinsFromNow = now.subtract(10, "minutes");
-
-    for await (const document of data) {
-      const savedDocument = documents.find(
-        (item) => item.documentId === document.documentId,
-      );
-
-      // if (!savedDocument) {
-      //   savedDocument = await this._create({
-      //     createdAt: new Date(document.createdDate * 1000),
-      //     documentId: document.documentId,
-      //   });
-      // }
-      if (!savedDocument) throw new Error("Docuemnt doesn't exist in database");
-      if (document.status === BoldsignDocumentStatus.completed)
-        savedDocument.completedAt = new Date();
-      if (document.status === BoldsignDocumentStatus.revoked)
-        savedDocument.revokedAt = new Date();
-      if (document.status === BoldsignDocumentStatus.pending) {
-        const creationDate = new Date(document.createdDate * 1000);
-        if (creationDate.getTime() - tenMinsFromNow.toDate().getTime() < 0)
-          this.revoke(savedDocument);
-        else
-          this.smartpayService.createInvoce(
-            document.signerDetails[0].signerEmail,
-            savedDocument.amount,
-          );
-        continue;
-      }
-      await savedDocument.save();
-    }
+  sendInvoice(email: string, amount: number) {
+    return this.smartpayService.createInvoce(email, amount);
   }
 
   findWithTenMinutesExpiration() {
