@@ -69,7 +69,7 @@ deploy_development:
     BACKUP_PATH: "/home/gitlab-runner/backups/dev-aga.live_backend"
     PORT: 4000
     SOCKET_PORT: 4001
-    NAME: "dev-aga-live"
+    NAME: "dev-aga-live_backend"
     ORIGINS: "https://dev-092523.aga.live"
     RMQ_QUERY_PROMPT_REPLY: "dev.prompt_reply"
   stage: deploy_development
