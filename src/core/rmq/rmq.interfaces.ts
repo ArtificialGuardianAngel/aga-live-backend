@@ -2,6 +2,9 @@ import { ModuleMetadata } from "@nestjs/common";
 
 export interface IRmqOptions {
   url: string;
+
+  query: string;
+  query_reply: string;
 }
 
 export interface IRmqModuleOptions extends Pick<ModuleMetadata, "imports"> {

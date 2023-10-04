@@ -2,12 +2,15 @@ variables:
   PROJECT_PATH: "/home/gitlab-runner/projects/aga.live_backend"
   DEPLOY_PATH: "/home/gitlab-runner/deployments/aga.live_backend"
   BACKUP_PATH: "/home/gitlab-runner/backups/aga.live_backend"
-  NGINX_CONF: "./nginx.conf"
+  NGINX_CONF: "./nginx/production.conf"
+  PORT: 3000
+  SOCKET_PORT: 3001
 
 stages:
   - install
   - test
   - deploy
+  - deploy_development
   - rollback
 
 install:
@@ -32,7 +35,10 @@ deploy:
     - cd $PROJECT_PATH
     - sudo cp $NGINX_CONF /etc/nginx/sites-available/api.aga.live
     - echo MONGODB_URI=$MONGODB_URI >> .env
+    - echo REDIS_URI=$REDIS_URI >> .env
     - echo RMQ_HOST=$RMQ_HOST >> .env
+    - echo RMQ_QUERY_PROMPT=$RMQ_QUERY_PROMPT >> .env
+    - echo RMQ_QUERY_PROMPT_REPLY=$RMQ_QUERY_PROMPT_REPLY >> .env
     - echo MINING_COINS_PER_QUERY=$MINING_COINS_PER_QUERY >> .env
     - echo MINING_COINS_MAX_PER_DAY=$MINING_COINS_MAX_PER_DAY >> .env
     - echo JWT_SECRET_PASSWORD=$JWT_SECRET_PASSWORD >> .env
@@ -42,6 +48,9 @@ deploy:
     - echo BOLDSIGN_TEMPLATE_ID=$BOLDSIGN_TEMPLATE_ID >> .env
     - echo SMARTPAY_API_KEY=$SMARTPAY_API_KEY >> .env
     - echo SMARTPAY_SECRET_KEY=$SMARTPAY_SECRET_KEY >> .env
+    - echo PORT=$PORT >> .env
+    - echo SOCKET_PORT=$SOCKET_PORT >> .env
+    - echo ORIGINS=$ORIGINS >> .env
     - cat .env
     - if [ -d $DEPLOY_PATH ]; then sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA; fi
     - sudo rsync -av --progress . $DEPLOY_PATH --exclude deploy
@@ -52,6 +61,52 @@ deploy:
     name: production
   only:
     - main
+
+deploy_development:
+  variables:
+    NGINX_CONF: "./nginx/development.conf"
+    DEPLOY_PATH: "/home/gitlab-runner/deployments/dev-aga.live_backend"
+    BACKUP_PATH: "/home/gitlab-runner/backups/dev-aga.live_backend"
+    PORT: 4000
+    SOCKET_PORT: 4001
+    NAME: dev-aga-live
+    ORIGINS: "",
+    RMQ_QUERY_PROMPT_REPLY: "dev.prompt_reply"
+  stage: deploy_development
+  script:
+    - cd $PROJECT_PATH
+    - sudo cp $NGINX_CONF /etc/nginx/sites-available/dev-api.aga.live
+    - echo MONGODB_URI=$MONGODB_URI >> .env
+    - echo REDIS_URI=$REDIS_URI >> .env
+    - echo RMQ_HOST=$RMQ_HOST >> .env
+    - echo RMQ_QUERY_PROMPT=$RMQ_QUERY_PROMPT >> .env
+    - echo RMQ_QUERY_PROMPT_REPLY=$RMQ_QUERY_PROMPT_REPLY >> .env
+    - echo MINING_COINS_PER_QUERY=$MINING_COINS_PER_QUERY >> .env
+    - echo MINING_COINS_MAX_PER_DAY=$MINING_COINS_MAX_PER_DAY >> .env
+    - echo JWT_SECRET_PASSWORD=$JWT_SECRET_PASSWORD >> .env
+    - echo SLACK_API_KEY=$SLACK_API_KEY >> .env
+    - echo BOLDSIGN_API_URL=$BOLDSIGN_API_URL >> .env
+    - echo BOLDSIGN_API_KEY=$BOLDSIGN_API_KEY >> .env
+    - echo BOLDSIGN_TEMPLATE_ID=$BOLDSIGN_TEMPLATE_ID >> .env
+    - echo SMARTPAY_API_KEY=$SMARTPAY_API_KEY >> .env
+    - echo SMARTPAY_SECRET_KEY=$SMARTPAY_SECRET_KEY >> .env
+    - echo PORT=$PORT >> .env
+    - echo SOCKET_PORT=$SOCKET_PORT >> .env
+    - echo ORIGINS=$ORIGINS >> .env
+    - export NAME=$NAME
+    - cat .env
+    - if [ ! -d $DEPLOY_PATH ]; then mkdir $DEPLOY_PATH; fi
+    - if [ ! -d $BACKUP_PATH ]; then mkdir $BACKUP_PATH; fi
+    - then sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA
+    - sudo rsync -av --progress . $DEPLOY_PATH --exclude deploy
+    - npm run build
+    - pm2 start ecosystem.config.js
+    - pm2 save
+  environment:
+    name: development
+  only:
+    - dev
+    - merge_request
 
 rollback:
   stage: rollback

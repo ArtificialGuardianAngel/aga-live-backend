@@ -5,16 +5,27 @@ import { createClient } from "redis";
 import { UserDocumnet } from "src/core/entities/user.entity";
 import { environment } from "src/core/enviroment";
 import { verify } from "jsonwebtoken";
+import { INestApplicationContext } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 export interface CustomSocket extends Socket {
   user: UserDocumnet;
 }
 
 export class RedisIoAdapter extends IoAdapter {
+  constructor(
+    app: INestApplicationContext,
+    private configService: ConfigService,
+  ) {
+    super(app);
+  }
+
   private adapterConstructor: ReturnType<typeof createAdapter>;
 
   async connectToRedis(): Promise<void> {
-    const pubClient = createClient({ url: `redis://localhost:6379` });
+    const pubClient = createClient({
+      url: this.configService.getOrThrow("REDIS_URL"),
+    });
     const subClient = pubClient.duplicate();
 
     await Promise.all([pubClient.connect(), subClient.connect()]);
@@ -23,6 +34,7 @@ export class RedisIoAdapter extends IoAdapter {
   }
 
   createIOServer(port: number, options?: ServerOptions): any {
+    port = this.configService.get<number>("SOCKET_PORT") || port;
     const server = super.createIOServer(port, options);
     server.adapter(this.adapterConstructor);
     server.use((socket: CustomSocket, next) => {

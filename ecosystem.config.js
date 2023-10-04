@@ -1,7 +1,9 @@
+const name = process.env.INSTANCE_NAME || "aga-live_backend";
+
 module.exports = {
   apps: [
     {
-      name: "aga-live_backend",
+      name,
       script: "dist/main.js",
     },
   ],
