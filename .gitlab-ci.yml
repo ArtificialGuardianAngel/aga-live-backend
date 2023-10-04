@@ -70,7 +70,7 @@ deploy_development:
     PORT: 4000
     SOCKET_PORT: 4001
     NAME: dev-aga-live
-    ORIGINS: "",
+    ORIGINS: "https://dev-092523.aga.live"
     RMQ_QUERY_PROMPT_REPLY: "dev.prompt_reply"
   stage: deploy_development
   script:
