@@ -34,8 +34,10 @@ import { DeveloperModule } from "./modules/developer/developer.module";
       useFactory: extractConfigurationFromConfigService({
         template: {
           url: "RMQ_HOST",
+          query_reply: "RMQ_QUERY_PROMPT_REPLY",
+          query: "RMQ_QUERY_PROMPT",
         },
-        validate: ["url"],
+        validate: ["url", "query", "query_reply"],
       }),
     }),
     ScheduleModule.forRoot(),

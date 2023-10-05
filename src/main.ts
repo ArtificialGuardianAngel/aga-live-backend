@@ -2,27 +2,26 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { RedisIoAdapter } from "src/core/adapters/redis.io.adapter";
 import cookieParser from "cookie-parser";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin:
-        process.env.NODE_ENV === "development"
-          ? [
-              "http://localhost:8888",
-              "http://127.0.0.1:8888",
-              "http://127.0.0.1:5173",
-              "http://localhost/5173",
-            ]
-          : ["https://aga.live", "https://admin.aga.live"],
-      credentials: true,
-    },
+  const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const origins = configService.get("ORIGINS") || [
+    "https://aga.live",
+    "https://admin.aga.live",
+  ];
+  app.enableCors({
+    origin: origins,
+    credentials: true,
   });
-
-  const redisIoAdapter = new RedisIoAdapter(app);
+  const port = configService.get("PORT") || 3000;
+  const redisIoAdapter = new RedisIoAdapter(app, configService);
   await redisIoAdapter.connectToRedis();
+
   app.use(cookieParser(null));
   app.useWebSocketAdapter(redisIoAdapter);
-  await app.listen(3000);
+
+  await app.listen(port);
 }
 bootstrap();

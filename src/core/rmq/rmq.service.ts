@@ -18,7 +18,7 @@ export class RmqService {
   private async connect() {
     this.connection = await connect(this.options.url);
     this.channel = await this.connection.createChannel();
-    this.result = await this.channel.assertQueue("reply_prompt");
+    this.result = await this.channel.assertQueue(this.options.query_reply);
   }
 
   public close(tag: Replies.Consume["consumerTag"]) {
@@ -32,7 +32,7 @@ export class RmqService {
   public async send(corrId: string, data: ISendData) {
     const sendData = Buffer.from(JSON.stringify(data));
 
-    this.channel.sendToQueue("prompt", sendData, {
+    this.channel.sendToQueue(this.options.query, sendData, {
       replyTo: this.result.queue,
       correlationId: corrId,
     });
