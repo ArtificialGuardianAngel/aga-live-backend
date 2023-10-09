@@ -4,7 +4,7 @@ import { ContractDocument, ContractModel } from "./entities/contract.entity";
 import { Model } from "mongoose";
 import { ID } from "src/types";
 import { ConfigService } from "@nestjs/config";
-import axios from "axios";
+import slack from "slack";
 import { SendDocumentToDto } from "../api/boldsign/dto/send.doc.dto";
 import { BoldsignService } from "../api/boldsign/boldsign.service";
 import {
@@ -13,6 +13,7 @@ import {
 } from "../api/boldsign/types";
 import moment from "moment";
 import { SmartpayService } from "../api/smartpay/smartpay.service";
+import { FormTypeEnum, SLACK_CHANNELS } from "../form/form.constants";
 
 @Injectable()
 export class ContractService {
@@ -21,6 +22,7 @@ export class ContractService {
     private readonly model: Model<ContractModel>,
     private readonly boldsignService: BoldsignService,
     private readonly smartpayService: SmartpayService,
+    private readonly configService: ConfigService,
   ) {}
 
   private async _create(data: Partial<ContractModel>) {
@@ -30,6 +32,17 @@ export class ContractService {
 
   async create(data: SendDocumentToDto) {
     const boldsignResponse = await this.boldsignService.sendDocumentTo(data);
+
+    try {
+      await slack.chat.postMessage({
+        token: this.configService.getOrThrow("SLACK_API_KEY"),
+        channel: SLACK_CHANNELS[FormTypeEnum.contract],
+        text: JSON.stringify(data, null, 2),
+      });
+    } catch (error) {
+      console.log("Send slack notification failed", error);
+    }
+
     return this._create({
       documentId: boldsignResponse.documentId,
       amount: parseInt(data.amount),
