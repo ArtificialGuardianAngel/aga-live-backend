@@ -7,10 +7,11 @@ import { ConfigService } from "@nestjs/config";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const origins = configService.get("ORIGINS") || [
+  const origins = configService.get("ORIGINS").split(",") || [
     "https://aga.live",
     "https://admin.aga.live",
   ];
+  console.log(origins);
   app.enableCors({
     origin: origins,
     credentials: true,
