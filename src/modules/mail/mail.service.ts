@@ -81,6 +81,7 @@ export class MailService {
     return {
       to,
       replyTo: "aga@nuah.org",
+      from: "AGA – Artificial Guardian Angel",
       subject: MAIL_SUBJECTS[type],
       html: compile(template.toString())(data),
       textEncoding: "base64",
