@@ -52,8 +52,10 @@ deploy:
     - echo SOCKET_PORT=$SOCKET_PORT >> .env
     - echo ORIGINS=$ORIGINS >> .env
     - cat .env
-    - if [ -d $DEPLOY_PATH ]; then sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA; fi
-    - sudo rsync -av --progress . $DEPLOY_PATH --exclude deploy
+    - if [ ! -d $DEPLOY_PATH ]; then mkdir $DEPLOY_PATH; fi
+    - if [ ! -d $BACKUP_PATH ]; then mkdir $BACKUP_PATH; fi
+    - sudo mkdir $BACKUP_PATH/$CI_COMMIT_SHORT_SHA && sudo mv $DEPLOY_PATH $BACKUP_PATH/$CI_COMMIT_SHORT_SHA
+    - sudo rsync -av . $DEPLOY_PATH --exclude deploy
     - npm run build
     - pm2 start ecosystem.config.js
     - pm2 save
