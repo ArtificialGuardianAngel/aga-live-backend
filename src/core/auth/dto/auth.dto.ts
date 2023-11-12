@@ -6,3 +6,8 @@ export class VerifyUserDto {
 export class AuthorisationDto {
   email: string;
 }
+
+export class WalletDto {
+  email?: string;
+  password: string;
+}

@@ -4,6 +4,8 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { Wallet, WalletSchema } from "src/core/entities/wallet.entity";
 import { WalletController } from "./wallet.controller";
 import { ConfigModule } from "@nestjs/config";
+import { UserModule } from "../user/user.module";
+import { CosmosModule } from "../cosmos/cosmos.module";
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { ConfigModule } from "@nestjs/config";
       },
     ]),
     ConfigModule,
+    UserModule,
+    CosmosModule,
   ],
   controllers: [WalletController],
   providers: [WalletService],

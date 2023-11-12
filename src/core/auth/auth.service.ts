@@ -3,6 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   InternalServerErrorException,
+  BadRequestException,
 } from "@nestjs/common";
 import { UserService } from "src/modules/user/user.service";
 import { AuthorisationDto } from "./dto/auth.dto";
@@ -12,6 +13,7 @@ import { InjectConnection } from "@nestjs/mongoose";
 import { UserTypeEnum } from "src/core/entities/user.entity";
 import { MailService } from "src/modules/mail/mail.service";
 import { EmailTypeEnum } from "src/modules/mail/mail.interfaces";
+import { CosmosService } from "src/modules/cosmos/cosmos.service";
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly walletService: WalletService,
     private readonly mailService: MailService,
+    private readonly cosmosService: CosmosService,
     @InjectConnection() private readonly connection: Connection,
   ) {}
 
@@ -89,7 +92,7 @@ export class AuthService {
       if (!instance.email) instance.email = email;
       instance.emailForVerify = null;
 
-      await this.walletService.create(instance._id, session);
+      await this.walletService.create(instance._id, null, session);
       const data = await instance.save({ session });
 
       await session.commitTransaction();
@@ -100,5 +103,21 @@ export class AuthService {
       await session.endSession();
       throw error;
     }
+  }
+
+  async connectToWallet(id: string, password: string) {
+    const user = await this.userService.findOne(id);
+    const wallet = await this.walletService.findOneByIdOrUserId(id);
+    if (!user) throw new BadRequestException("User not found");
+    if (!wallet || !wallet.mnemonicHashed)
+      throw new BadRequestException("User should have a valid account");
+
+    const { mnemonic } = await this.cosmosService.getWalletMnemonic(
+      user.email,
+      password,
+      wallet,
+    );
+
+    return { mnemonic };
   }
 }

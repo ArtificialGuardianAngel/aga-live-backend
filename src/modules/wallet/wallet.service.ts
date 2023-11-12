@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { Decimal } from "decimal.js";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { ClientSession, Model } from "mongoose";
 import { Wallet } from "src/core/entities/wallet.entity";
 import { ID } from "src/types";
+import { UserService } from "../user/user.service";
+import { CosmosService } from "../cosmos/cosmos.service";
 
 @Injectable()
 export class WalletService {
@@ -13,6 +19,8 @@ export class WalletService {
   constructor(
     @InjectModel(Wallet.name) private readonly model: Model<Wallet>,
     private readonly configService: ConfigService,
+    private readonly userService: UserService,
+    private readonly cosmosService: CosmosService,
   ) {
     this.per_day = Number(
       this.configService.getOrThrow("MINING_COINS_PER_QUERY"),
@@ -32,9 +40,10 @@ export class WalletService {
     return instance;
   }
 
-  create(userId: ID, session?: ClientSession) {
+  create(userId: ID, rest?: Partial<Wallet>, session?: ClientSession) {
     const instance = new this.model({
       userId,
+      ...rest,
     });
     return instance.save({ session });
   }
@@ -65,5 +74,30 @@ export class WalletService {
       wallet.transactions.push({ value: amount });
     }
     return wallet.save({ session });
+  }
+
+  async createWallet(id: string, password: string, email?: string) {
+    const user = await this.userService.findOne(id);
+    if (!user) throw new NotFoundException("User not found");
+    const userEmail = user?.email || email;
+    if (!userEmail) throw new BadRequestException("U need to provide email");
+    if (email) {
+      user.email = email;
+      await user.save();
+    }
+
+    const {
+      cipherMnemonic,
+      keyHash,
+      wallet: _wallet,
+    } = await this.cosmosService.createWallet(userEmail, password);
+    let wallet = await this.findOneByIdOrUserId(user.id);
+    if (!wallet) wallet = await this.create(user.id);
+    wallet.mnemonicHashed = cipherMnemonic;
+    wallet.passwordHash = keyHash;
+    await wallet.save();
+    return {
+      mnemonic: _wallet.mnemonic,
+    };
   }
 }
