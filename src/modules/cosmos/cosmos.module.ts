@@ -3,7 +3,7 @@ import { CosmosService } from "./cosmos.service";
 import { ConfigModule } from "@nestjs/config";
 
 @Module({
-  import: [ConfigModule],
+  imports: [ConfigModule],
   providers: [CosmosService],
   exports: [CosmosService],
 })

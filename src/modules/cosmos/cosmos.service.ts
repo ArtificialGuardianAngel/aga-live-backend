@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import crypto from "crypto";
@@ -11,11 +11,20 @@ export class CosmosService {
     this.iv = crypto
       .createHash("sha256")
       .update(config.getOrThrow("IV"))
-      .digest("hex");
+      .digest("hex")
+      .substring(0, 16);
+
+    console.log("IV", this.iv);
   }
   async createWallet(email: string, password: string) {
     const key = [email, password].join("#"); // mail@mail.com#asdasd123
-    const keyHash = crypto.createHash("sha256").update(key).digest("hex");
+    const keyHash = crypto
+      .createHash("sha256")
+      .update(key)
+      .digest("hex")
+      .substring(0, 32);
+
+    console.log("KEY", key, keyHash, keyHash.length);
 
     const wallet: DirectSecp256k1HdWallet =
       await DirectSecp256k1HdWallet.generate(24);
@@ -35,11 +44,18 @@ export class CosmosService {
 
   getWalletMnemonic(email: string, password: string, wallet: Wallet) {
     const key = [email, password].join("#");
-    const keyHash = crypto.createHash("sha256").update(key).digest("hex");
+    const keyHash = crypto
+      .createHash("sha256")
+      .update(key)
+      .digest("hex")
+      .substring(0, 32);
+
+    if (keyHash !== wallet.passwordHash)
+      throw new BadRequestException("Password is not correct");
     const decipher = crypto.createDecipheriv("aes-256-cbc", keyHash, this.iv);
+    const data = Buffer.from(wallet.mnemonicHashed, "base64").toString("utf8");
     const mnemonic =
-      decipher.update(wallet.mnemonicHashed, "utf-8", "hex") +
-      decipher.final("hex");
+      decipher.update(data, "hex", "utf8") + decipher.final("utf8");
 
     return { mnemonic };
   }
