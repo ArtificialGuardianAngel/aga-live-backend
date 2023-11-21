@@ -51,6 +51,7 @@ deploy:
     - echo PORT=$PORT >> .env
     - echo SOCKET_PORT=$SOCKET_PORT >> .env
     - echo ORIGINS=$ORIGINS >> .env
+    - echo IV=$IV >> .env
     - cat .env
     - if [ ! -d $DEPLOY_PATH ]; then mkdir $DEPLOY_PATH; fi
     - if [ ! -d $BACKUP_PATH ]; then mkdir $BACKUP_PATH; fi
@@ -95,6 +96,7 @@ deploy_development:
     - echo PORT=$PORT >> .env
     - echo SOCKET_PORT=$SOCKET_PORT >> .env
     - echo ORIGINS=$ORIGINS >> .env
+    - echo IV=$IV >> .env
     - export NAME=$NAME
     - cat .env
     - if [ ! -d $DEPLOY_PATH ]; then mkdir $DEPLOY_PATH; fi
