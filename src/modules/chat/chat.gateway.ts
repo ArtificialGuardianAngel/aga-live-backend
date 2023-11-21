@@ -42,7 +42,8 @@ export class ChatGateway {
 
         if (data.end) {
           console.log("saving", this.chats[socketId]);
-          if (this.chats[socketId].isConnected) socket.emit("prompt_reply_end");
+          if (this.chats[socketId].isConnected)
+            socket.emit("prompt_reply_end", data);
           this.chats[socketId].doc.history = (data as any).history;
           await this.chats[socketId].doc.save();
           await this.service.handlePrompt(chat.creator as unknown as ID);
