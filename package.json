@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@coinsmart/smartpay-sdk": "^1.2.3",
+    "@cosmjs/stargate": "^0.31.3",
     "@google-cloud/local-auth": "^2.1.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.0.0",

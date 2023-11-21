@@ -19,6 +19,15 @@ export class Wallet {
   })
   userId: User;
 
+  @Prop({ unique: true })
+  mnemonicHashed: string;
+
+  @Prop()
+  passwordHash: string;
+
+  @Prop()
+  accounts: string[];
+
   @Prop({ default: 0 })
   balance: number;
 
