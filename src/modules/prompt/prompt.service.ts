@@ -4,6 +4,10 @@ import axios, { AxiosInstance } from "axios";
 import { PromptDTO } from "./dto/prompt.dto";
 import { TogetherResponseBody } from "./types";
 
+const DEFAULT_TAGS = {
+  prompt: "INST",
+  answer: "s",
+};
 const DEFAULT_VALUES = {
   model: "togethercomputer/llama-2-70b-chat",
   negative_prompt: "",
@@ -14,7 +18,7 @@ const DEFAULT_VALUES = {
   repetition_penalty: 1,
   stream_tokens: false,
   max_tokens: 512,
-  stop: ["[/INST]", "</s>", "</bot>"],
+  stop: ["[/INST]", "</s>"],
   type: "chat",
 };
 
@@ -35,33 +39,70 @@ export class PromptService {
     });
   }
 
+  private mapHistoryToPrompt(
+    history: PromptDTO["history"],
+    prompt: string,
+    tags: PromptDTO["tags"],
+  ) {
+    let res = "";
+    for (const conversation of history) {
+      res += `<${tags.prompt}>:${conversation[0]}</${tags.prompt}>\n`;
+      res += `<${tags.answer}>:${conversation[1]}</${tags.answer}>\n`;
+    }
+    res += `<${tags.prompt}>:${prompt}</${tags.prompt}>\n`;
+    res += `<${tags.answer}>:`;
+    return res;
+  }
+
+  private mapTagsToStopSeq(tags: PromptDTO["tags"], stop: PromptDTO["stop"]) {
+    if (stop) return stop;
+    return [`</${tags.answer}>`, `<${tags.prompt}>:`];
+  }
+
   async prompt(dto: PromptDTO) {
+    const tags = dto.tags || DEFAULT_TAGS;
+    const stop = this.mapTagsToStopSeq(tags, dto.stop);
+    const prompt = this.mapHistoryToPrompt(dto.history, dto.prompt, tags);
     try {
       const res = await this.client.post<TogetherResponseBody>("inference", {
         ...DEFAULT_VALUES,
-        ...dto,
+        ...dto.params,
+        stop: stop,
+        prompt,
       });
-      console.log(res.data);
-      return res.data.output.choices[0];
+      return {
+        ...res.data.output.choices[0],
+        raw_prompt: prompt + res.data.output.choices[0].text,
+      };
     } catch (error) {
       console.log(error);
       throw new Error(error.message);
     } finally {
       console.log({
         ...DEFAULT_VALUES,
-        ...dto,
+        ...dto.params,
+        stop: stop,
+        prompt: this.mapHistoryToPrompt(dto.history, dto.prompt, tags),
       });
     }
   }
   promptStream(dto: PromptDTO) {
-    return this.client.post(
-      "inference",
-      {
-        ...DEFAULT_VALUES,
-        ...dto,
-        stream_tokens: true,
-      },
-      { responseType: "stream" },
-    );
+    const tags = dto.tags || DEFAULT_TAGS;
+    const stop = this.mapTagsToStopSeq(tags, dto.stop);
+    const prompt = this.mapHistoryToPrompt(dto.history, dto.prompt, tags);
+    return {
+      response: this.client.post(
+        "inference",
+        {
+          ...DEFAULT_VALUES,
+          ...dto.params,
+          stop: stop,
+          prompt,
+          stream_tokens: true,
+        },
+        { responseType: "stream" },
+      ),
+      raw_prompt: prompt,
+    };
   }
 }

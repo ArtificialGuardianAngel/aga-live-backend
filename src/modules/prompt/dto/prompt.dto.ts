@@ -1,9 +1,5 @@
 import { IsString } from "class-validator";
-export class PromptHistory {
-  internal: [string, string][];
 
-  visible: [string, string][];
-}
 export class PromptParams {
   temperature: number;
   top_p: number;
@@ -12,10 +8,17 @@ export class PromptParams {
   stop: string[];
   max_tokens: number;
 }
+
 export class PromptDTO {
   @IsString()
   prompt: string;
 
-  history: PromptHistory;
+  history?: [string, string][];
+
+  tags?: {
+    prompt?: string;
+    answer?: string;
+  };
+  stop?: string[];
   params: PromptParams;
 }

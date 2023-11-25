@@ -16,15 +16,14 @@ export class PromptController {
   @Sse("stream")
   handleStreamingTokens(@Body() dto: PromptDTO): Observable<MessageEvent> {
     const observer = new Observable<MessageEvent>((subscriber) => {
-      this.service.promptStream(dto).then((response) => {
+      const { response, raw_prompt } = this.service.promptStream(dto);
+      response.then((response) => {
         response.data.on("data", (buff: Buffer) => {
           const strs = buff
             .toString()
             .replaceAll("data: ", "")
             .trim()
             .split("\n");
-          console.log(buff.toString());
-
           try {
             for (let i = 0; i < strs.length; i++) {
               const str = strs[i];
@@ -36,6 +35,7 @@ export class PromptController {
                   ...data.choices[0],
                   generated_text: data.generated_text,
                   stats: data.stats,
+                  raw_prompt,
                 },
                 id: data.id,
               });

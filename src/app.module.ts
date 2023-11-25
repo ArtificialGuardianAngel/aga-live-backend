@@ -17,6 +17,7 @@ import { AdminModule } from "./modules/admin/admin.module";
 import { HappinessModule } from "./modules/happiness/happiness.module";
 import { ContractModule } from "./modules/contract/contract.module";
 import { DeveloperModule } from "./modules/developer/developer.module";
+import { PromptModule } from "./modules/prompt/prompt.module";
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { DeveloperModule } from "./modules/developer/developer.module";
     HappinessModule,
     ContractModule,
     DeveloperModule,
+    PromptModule,
     RouterModule.register([
       {
         path: "admin",
@@ -92,6 +94,10 @@ import { DeveloperModule } from "./modules/developer/developer.module";
       {
         path: "developer",
         module: DeveloperModule,
+      },
+      {
+        path: "prompt",
+        module: PromptModule,
       },
     ]),
   ],
