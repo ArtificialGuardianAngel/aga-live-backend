@@ -52,6 +52,7 @@ deploy:
     - echo SOCKET_PORT=$SOCKET_PORT >> .env
     - echo ORIGINS=$ORIGINS >> .env
     - echo TOGETHER_API_KEY=$TOGETHER_API_KEY >> .env
+    - echo IV=$IV >> .env
     - cat .env
     - if [ ! -d $DEPLOY_PATH ]; then mkdir $DEPLOY_PATH; fi
     - if [ ! -d $BACKUP_PATH ]; then mkdir $BACKUP_PATH; fi
