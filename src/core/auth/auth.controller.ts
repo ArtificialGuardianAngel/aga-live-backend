@@ -54,10 +54,6 @@ export class AuthController {
   @Get("me")
   async handleMe(@User("_id") id?: string) {
     console.log({ id });
-    if (!id) return null;
-    const instance = await this.userService.findOne(id);
-    if (instance.type === UserTypeEnum.anonymous || instance.emailForVerify)
-      return null;
-    return instance;
+    return this.service.getMe(id);
   }
 }

@@ -40,12 +40,16 @@ export class WalletService {
     return instance;
   }
 
-  create(userId: ID, rest?: Partial<Wallet>, session?: ClientSession) {
-    const instance = new this.model({
-      userId,
-      ...rest,
-    });
-    return instance.save({ session });
+  async create(userId: ID, rest?: Partial<Wallet>, session?: ClientSession) {
+    const createdInstance = await this.model.findOne({ userId });
+    if (!createdInstance) {
+      const instance = new this.model({
+        userId,
+        ...rest,
+      });
+      return instance.save({ session });
+    }
+    return createdInstance;
   }
 
   async addToBalance(id: ID, amount: number, session?: ClientSession) {
@@ -85,7 +89,7 @@ export class WalletService {
       user.email = email;
       await user.save();
     }
-
+    console.log("password", password);
     const {
       cipherMnemonic,
       keyHash,
@@ -99,5 +103,25 @@ export class WalletService {
     return {
       mnemonic: _wallet.mnemonic,
     };
+  }
+
+  async connectToWallet(id: string, password: string) {
+    console.log(id, password);
+    const user = await this.userService.findOne(id);
+    const wallet = await this.findOneByIdOrUserId(id);
+    if (!user) throw new BadRequestException("User not found");
+    if (!wallet || !wallet.mnemonicHashed)
+      return this.createWallet(id, password);
+    // throw new BadRequestException("User should have a valid account");
+
+    console.log(password, user.email);
+
+    const { mnemonic } = await this.cosmosService.getWalletMnemonic(
+      user.email,
+      password,
+      wallet,
+    );
+
+    return { mnemonic };
   }
 }
