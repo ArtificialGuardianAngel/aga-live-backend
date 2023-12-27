@@ -59,13 +59,17 @@ export class AuthService {
       } else {
         await instance.deleteOne();
         // send emailedInstance.code
+        emailedInstance.emailForVerify = data.email;
         obj = emailedInstance;
         code = emailedInstance.code;
+        await emailedInstance.save();
       }
       // send instance.code
     } else {
+      instance.emailForVerify = data.email;
       code = instance.code;
       obj = instance;
+      await instance.save();
     }
     try {
       const template = await this.mailService.useFormTemplate(
