@@ -1,3 +1,5 @@
+import { IsString } from "class-validator";
+
 export class VerifyUserDto {
   code: string;
   email: string;
@@ -8,6 +10,6 @@ export class AuthorisationDto {
 }
 
 export class WalletDto {
-  email?: string;
+  @IsString()
   password: string;
 }

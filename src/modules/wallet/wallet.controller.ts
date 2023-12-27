@@ -15,8 +15,8 @@ export class WalletController {
   }
 
   @UseGuards(AuthGuard)
-  @Post("wallet/connect")
-  handleWallet(@User("_id") id: string, @Body() data: WalletDto) {
-    return this.service.createWallet(id, data.password, data.email);
+  @Post("connect")
+  handleConnectWallet(@User("_id") id: string, @Body() data: WalletDto) {
+    return this.service.connectToWallet(id, data.password);
   }
 }
